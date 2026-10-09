@@ -1,0 +1,295 @@
+/*!
+ * Adaally Slider styles
+ * All colors, sizes, radii and spacing are CSS custom properties —
+ * override them on the root .adaally-slider element to rebrand.
+ */
+.adaally-slider {
+  --adaally-color: #111827;
+  --adaally-bg: #ffffff;
+  --adaally-focus: #2563eb;
+  --adaally-btn-size: 2.5rem;
+  --adaally-btn-radius: 50%;
+  --adaally-btn-border-width: 0;
+  --adaally-btn-border-color: currentColor;
+  --adaally-dot-size: 0.75rem;
+  --adaally-dot-gap: 0.5rem;
+  --adaally-dot-color-active: currentColor;
+  --adaally-dot-border-width: 2px;
+  --adaally-dot-border-color: currentColor;
+  --adaally-gap: 1rem;
+  --adaally-transition: 300ms;
+  --adaally-arrow-inset: 0.5rem;
+  --adaally-per-view: 1;
+
+  position: relative;
+  display: block;
+  color: var(--adaally-color);
+}
+
+/* ---------- layout ---------- */
+.adaally-slider__viewport {
+  position: relative;
+  overflow: hidden;
+}
+
+.adaally-slider__track {
+  display: flex;
+  gap: var(--adaally-gap);
+  transition: transform var(--adaally-transition) ease-out;
+  will-change: transform;
+}
+
+.adaally-slider__slide {
+  flex: 0 0 auto;
+  width: calc((100% - (var(--adaally-per-view) - 1) * var(--adaally-gap)) / var(--adaally-per-view));
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Defensive: keep user media inside the slide box.
+   Without this, an oversized image or video breaks the transform math. */
+.adaally-slider__slide img,
+.adaally-slider__slide video,
+.adaally-slider__slide picture,
+.adaally-slider__slide svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------- fade transition variant ---------- */
+.adaally-slider--fade .adaally-slider__track {
+  display: block;
+}
+.adaally-slider--fade .adaally-slider__slide {
+  width: 100%;
+  display: none;
+  animation: adaally-slider-fade var(--adaally-transition) ease-out;
+}
+.adaally-slider--fade .adaally-slider__slide--active {
+  display: block;
+}
+@keyframes adaally-slider-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ---------- reduced-motion ---------- */
+.adaally-slider--reduced-motion .adaally-slider__track {
+  transition: none;
+}
+.adaally-slider--reduced-motion .adaally-slider__slide {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .adaally-slider__track { transition: none; }
+  .adaally-slider__slide { animation: none; }
+}
+
+/* ---------- controls ---------- */
+.adaally-slider__controls {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--adaally-arrow-inset);
+  pointer-events: none;
+  z-index: 2;
+}
+.adaally-slider__controls > * { pointer-events: auto; }
+
+.adaally-slider__prev,
+.adaally-slider__next,
+.adaally-slider__play,
+.adaally-slider__dot {
+  cursor: pointer;
+  font: inherit;
+  color: var(--adaally-color);
+  background: var(--adaally-bg);
+  border: var(--adaally-btn-border-width) solid var(--adaally-btn-border-color);
+  padding: 0;
+  font-family: inherit;
+}
+
+.adaally-slider__prev,
+.adaally-slider__next,
+.adaally-slider__play {
+  width: var(--adaally-btn-size);
+  height: var(--adaally-btn-size);
+  border-radius: var(--adaally-btn-radius);
+  display: inline-grid;
+  place-items: center;
+  line-height: 1;
+}
+
+/* Play button — direct child of the .adaally-slider root (positioned first
+   in the DOM so keyboard Tab lands on it before slide content). Positioned
+   absolutely with an explicit `--adaally-arrow-inset` offset from each edge. */
+.adaally-slider__play {
+  position: absolute;
+  z-index: 3;
+}
+.adaally-slider__play--top-left     { top: var(--adaally-arrow-inset);    left: var(--adaally-arrow-inset); }
+.adaally-slider__play--top-right    { top: var(--adaally-arrow-inset);    right: var(--adaally-arrow-inset); }
+.adaally-slider__play--top-center   { top: var(--adaally-arrow-inset);    left: 50%; transform: translateX(-50%); }
+.adaally-slider__play--bottom-left  { bottom: var(--adaally-arrow-inset); left: var(--adaally-arrow-inset); }
+.adaally-slider__play--bottom-right { bottom: var(--adaally-arrow-inset); right: var(--adaally-arrow-inset); }
+.adaally-slider__play--bottom-center{ bottom: var(--adaally-arrow-inset); left: 50%; transform: translateX(-50%); }
+
+/* Default and custom SVG icons scale to the button size */
+.adaally-slider__prev svg,
+.adaally-slider__next svg {
+  width: 55%;
+  height: 55%;
+  display: block;
+}
+.adaally-slider__play svg {
+  width: 45%;
+  height: 45%;
+  display: block;
+}
+
+/* ---------- dots ---------- */
+.adaally-slider__dots {
+  display: flex;
+  gap: var(--adaally-dot-gap);
+  justify-content: center;
+}
+
+/* Default: floats over the bottom of the slide, like Instagram/most
+   modern carousels. Positioned relative to the root (already
+   `position: relative`), same pattern as the play button and arrows. */
+.adaally-slider__dots--overlay {
+  position: absolute;
+  left: 50%;
+  bottom: var(--adaally-dots-inset, var(--adaally-arrow-inset));
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+/* Alternative: a normal block sitting below the whole slider, out of
+   the way of the slide content — set via `dotsPosition: 'below'`. */
+.adaally-slider__dots--below {
+  position: static;
+  margin-top: 0.75rem;
+}
+.adaally-slider__dot {
+  width: var(--adaally-dot-size);
+  height: var(--adaally-dot-size);
+  border-radius: 50%;
+  background: transparent;
+  /* Dots keep their own border regardless of the button border defaults,
+     so unselected dots stay visible even when buttons are borderless. */
+  border: var(--adaally-dot-border-width) solid var(--adaally-dot-border-color);
+  transition:
+    transform var(--adaally-transition) ease-out,
+    background var(--adaally-transition) ease-out;
+}
+.adaally-slider__dot--active {
+  background: var(--adaally-dot-color-active);
+  transform: scale(1.2);
+}
+
+/* ---------- lines variant ---------- */
+/* When `dotsShape: 'line'` is set, dots become thin horizontal bars. */
+.adaally-slider__dots--lines {
+  gap: var(--adaally-line-gap, 0.35rem);
+}
+.adaally-slider__dots--lines .adaally-slider__dot {
+  width: var(--adaally-line-width, 1.75rem);
+  height: var(--adaally-line-height, 3px);
+  border-radius: 999px;
+  border-width: 0;
+  background: currentColor;
+  opacity: 0.3;
+}
+.adaally-slider__dots--lines .adaally-slider__dot--active {
+  opacity: 1;
+  background: var(--adaally-dot-color-active);
+  transform: none;
+}
+
+/* ---------- focus & disabled ---------- */
+.adaally-slider :focus-visible {
+  outline: 3px solid var(--adaally-focus);
+  outline-offset: 2px;
+}
+.adaally-slider button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------- variant modifiers ---------- */
+.adaally-slider--outlined .adaally-slider__prev,
+.adaally-slider--outlined .adaally-slider__next,
+.adaally-slider--outlined .adaally-slider__play {
+  background: transparent;
+  border-width: 2px;
+}
+.adaally-slider--ghost .adaally-slider__prev,
+.adaally-slider--ghost .adaally-slider__next,
+.adaally-slider--ghost .adaally-slider__play {
+  background: transparent;
+  border-color: transparent;
+}
+.adaally-slider--minimal {
+  --adaally-btn-size: 2rem;
+  --adaally-dot-size: 0.5rem;
+}
+.adaally-slider--square {
+  --adaally-btn-radius: 4px;
+}
+
+/* ---------- reveal controls on hover / focus ---------- */
+/* When the option is on, arrows and the play/pause button fade in only when
+   the user hovers or focuses inside the carousel. Dots stay visible. */
+.adaally-slider--reveal-controls .adaally-slider__prev,
+.adaally-slider--reveal-controls .adaally-slider__next,
+.adaally-slider--reveal-controls .adaally-slider__play {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--adaally-transition) ease-out;
+}
+.adaally-slider--reveal-controls:hover .adaally-slider__prev,
+.adaally-slider--reveal-controls:hover .adaally-slider__next,
+.adaally-slider--reveal-controls:hover .adaally-slider__play,
+.adaally-slider--reveal-controls:focus-within .adaally-slider__prev,
+.adaally-slider--reveal-controls:focus-within .adaally-slider__next,
+.adaally-slider--reveal-controls:focus-within .adaally-slider__play {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* On touch devices (no hover) always show — otherwise the controls become
+   discoverable only by first tapping the carousel, which is a bad pattern. */
+@media (hover: none) {
+  .adaally-slider--reveal-controls .adaally-slider__prev,
+  .adaally-slider--reveal-controls .adaally-slider__next,
+  .adaally-slider--reveal-controls .adaally-slider__play {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* ---------- SR-only status region ---------- */
+.adaally-slider__sr-status {
+  display: block;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Many themes (e.g. Shopify Dawn) reset empty elements with
+   `div:empty { display: none }`. The live region is empty between
+   announcements, so it would be removed from the accessibility tree and
+   screen readers would never announce slide changes. The extra
+   :empty selector outranks that reset (0,2,0 vs 0,1,1). */
+.adaally-slider__sr-status:empty {
+  display: block;
+}

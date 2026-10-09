@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adaally Slider — An accessible carousel for vanilla JS and Shopify</title>
+  <link rel="stylesheet" href="../dist/adaally-slider.css" />
+  <style>
+    :root {
+      --page-bg: #f4f4fb;
+      --page-fg: #1a1a1a;
+      --muted: #6b6b78;
+      --accent: #4e4d98;             /* ADA Ally brand purple */
+      --accent-strong: #3d3c7a;
+      --card-bg: #ffffff;
+      --card-inner: #f4f4fb;
+      --pill-dark: #111111;
+      --price-strike: #a8a29e;
+      --border: #e5e5ee;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--page-bg);
+      color: var(--page-fg);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+
+    /* ---------- Nav ---------- */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.5rem;
+    }
+    .wordmark {
+      font-weight: 800; letter-spacing: -0.03em; font-size: 1.4rem;
+      display: flex; align-items: center; gap: 0.4rem;
+      color: var(--page-fg);
+    }
+    .wordmark .brand-mark { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; font-size: 0.95rem; }
+    .nav-links a { text-decoration: none; opacity: 0.7; }
+    .nav-links a:hover { opacity: 1; }
+
+    /* ---------- Landing hero ---------- */
+    .landing {
+      max-width: 1200px; margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+    .landing-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    @media (max-width: 900px) { .landing-grid { grid-template-columns: 1fr; } }
+    .landing-text { max-width: 560px; }
+    .kicker {
+      display: inline-block;
+      background: var(--accent); color: #fff;
+      padding: 0.35rem 0.8rem; border-radius: 999px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .landing-text h1 {
+      font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+      margin: 0 0 1rem;
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.05;
+      color: var(--page-fg);
+    }
+    .landing-text h1 em { color: var(--accent); font-style: normal; }
+    .landing-text > p {
+      margin: 0 0 1.75rem;
+      color: var(--muted);
+      font-size: 1.1rem; line-height: 1.6;
+      max-width: 50ch;
+    }
+    .landing-ctas {
+      display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.85rem 1.35rem; border-radius: 12px;
+      font-weight: 600; font-size: 0.95rem;
+      text-decoration: none;
+      transition: background 200ms ease-out, color 200ms ease-out;
+      border: 0; cursor: pointer;
+    }
+    .btn-primary { background: #000; color: #fff; }
+    .btn-primary:hover { background: var(--accent); }
+    .btn-outline {
+      background: transparent; color: var(--page-fg);
+      border: 2px solid var(--page-fg);
+      padding: 0.7rem 1.2rem;
+    }
+    .btn-outline:hover { background: var(--page-fg); color: #fff; }
+
+    .landing-stats {
+      display: flex; gap: 2.5rem;
+      padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .landing-stats > div { display: flex; flex-direction: column; }
+    .landing-stats .num {
+      font-size: 1.65rem; font-weight: 800;
+      color: var(--accent); letter-spacing: -0.02em; line-height: 1;
+    }
+    .landing-stats .lbl {
+      font-size: 0.8rem; color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    .landing-visual {
+      border-radius: 22px; overflow: hidden;
+      position: relative;
+      aspect-ratio: 4 / 3;
+      background: #000;
+    }
+    .landing-visual .mini-slide { position: relative; height: 100%; }
+    .landing-visual .mini-slide img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .landing-visual .mini-caption {
+      position: absolute; left: 1.25rem; bottom: 1.25rem; right: 1.25rem;
+      color: #fff; font-weight: 700; font-size: 1.05rem;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+    .landing-visual .adaally-slider {
+      --adaally-color: #ffffff;
+      --adaally-bg: #000000;
+      --adaally-focus: #ffffff;
+      --adaally-btn-size: 2.25rem;
+      --adaally-line-width: 1.5rem;
+      --adaally-arrow-inset: 0.75rem;
+    }
+
+    /* ---------- Section container ---------- */
+    .section {
+      max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem;
+    }
+    .section-head { margin-bottom: 1.75rem; }
+    .section-head h2 { font-size: 2rem; margin: 0 0 0.35rem; letter-spacing: -0.02em; font-weight: 800; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 1rem; }
+
+    /* ---------- Feature strip ---------- */
+    .features {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1rem; padding: 0 1.5rem;
+      max-width: 1200px; margin: 0 auto;
+    }
+    @media (max-width: 720px) { .features { grid-template-columns: 1fr; } }
+    .feature { background: var(--card-bg); border-radius: 16px; padding: 1.5rem; }
+    .feature .num {
+      font-family: 'Times New Roman', Georgia, serif;
+      font-size: 3rem; font-weight: 500; line-height: 1;
+      color: var(--accent); margin: 0 0 1rem;
+      letter-spacing: -0.03em;
+    }
+    .feature h3 { margin: 0 0 0.25rem; font-size: 1.1rem; letter-spacing: -0.01em; }
+    .feature p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    /* ---------- WCAG explainer (compact) ---------- */
+    .wcag {
+      max-width: 1200px; margin: 2rem auto 0; padding: 2rem 1.5rem;
+    }
+    .wcag-card {
+      background: var(--card-bg);
+      border-radius: 22px;
+      padding: 2rem 2.25rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: center;
+    }
+    @media (max-width: 800px) { .wcag-card { grid-template-columns: 1fr; gap: 1.25rem; } }
+    .wcag-copy h2 {
+      font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+      margin: 0 0 0.5rem;
+      font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;
+    }
+    .wcag-copy h2 em { color: var(--accent); font-style: normal; }
+    .wcag-copy p {
+      margin: 0; color: var(--muted); font-size: 0.95rem;
+      line-height: 1.55; max-width: 52ch;
+    }
+    .wcag-copy p a { color: var(--accent); font-weight: 600; }
+    .wcag-chips {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(130px, 1fr));
+      gap: 0.4rem;
+    }
+    .wcag-chip {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--page-bg);
+      border-radius: 8px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.78rem;
+      color: var(--page-fg);
+    }
+    .wcag-chip .sc {
+      background: var(--accent); color: #fff;
+      font-weight: 700; font-size: 0.7rem;
+      padding: 0.1rem 0.35rem; border-radius: 4px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.3;
+    }
+
+    /* ---------- Examples (all together) ---------- */
+    .examples { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    .example-block { margin-top: 2rem; }
+    .example-block:first-of-type { margin-top: 0; }
+    .example-label {
+      display: flex; align-items: baseline; gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .example-label .tag {
+      background: var(--accent); color: #fff;
+      padding: 0.2rem 0.5rem; border-radius: 6px;
+      font-weight: 700; font-size: 0.7rem;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .example-label .title {
+      color: var(--page-fg); font-weight: 700; font-size: 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    /* Frame wrappers used by the example carousels */
+    .frame { border-radius: 22px; overflow: hidden; }
+    .frame.dark { background: #000; }
+    .frame.light { background: var(--card-bg); padding: 0.75rem; }
+
+    /* Example 1: image hero */
+    .example-image .hero-slide { position: relative; }
+    .example-image .hero-slide img { width: 100%; height: 460px; object-fit: cover; display: block; }
+    .example-image .hero-caption {
+      position: absolute; left: 2.5rem; bottom: 2.5rem; right: 2.5rem;
+      color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    }
+    .example-image .hero-caption h3 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      margin: 0 0 0.5rem;
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+      max-width: 22ch;
+    }
+    .example-image .hero-caption p {
+      font-size: 1rem; margin: 0; max-width: 48ch;
+    }
+    .example-image .adaally-slider {
+      --adaally-color: #ffffff;
+      --adaally-bg: #000000;
+      --adaally-focus: #ffffff;
+      --adaally-line-width: 2.25rem;
+    }
+    .example-image .adaally-slider__dots--lines .adaally-slider__dot {
+      background: #fff; opacity: 0.6;
+    }
+    .example-image .adaally-slider__dots--lines .adaally-slider__dot--active {
+      background: var(--accent); opacity: 1;
+    }
+
+    /* Example 2: product cards */
+    .example-products .adaally-slider {
+      --adaally-color: var(--accent);
+      --adaally-bg: #ffffff;
+      --adaally-dot-color-active: var(--accent);
+    }
+    .product-card {
+      background: var(--card-bg);
+      border-radius: 22px;
+      padding: 0.75rem;
+      display: flex; flex-direction: column;
+      height: 100%; position: relative;
+    }
+    .product-image {
+      position: relative; background: var(--card-inner);
+      border-radius: 16px; aspect-ratio: 1/1; overflow: hidden;
+    }
+    .product-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .badges {
+      position: absolute; top: 0.75rem; left: 0.75rem;
+      display: flex; gap: 0.5rem; z-index: 2;
+    }
+    .badge {
+      font-size: 0.85rem; font-weight: 600;
+      padding: 0.45rem 0.85rem; border-radius: 999px; line-height: 1;
+    }
+    .badge--dark { background: var(--pill-dark); color: #fff; }
+    .badge--light { background: #fff; color: var(--page-fg); }
+    .product-meta {
+      display: grid; grid-template-columns: 2fr 1fr auto auto;
+      gap: 0.5rem; margin-top: 0.75rem;
+    }
+    .tile {
+      background: var(--card-inner); border-radius: 14px;
+      padding: 0.5rem 0.65rem; display: flex; align-items: center; justify-content: center;
+      min-height: 3.5rem;
+    }
+    .dimensions {
+      display: grid; grid-template-columns: repeat(3, 1fr); text-align: center;
+      gap: 0.15rem; font-size: 0.75rem; width: 100%;
+    }
+    .dimensions .label { color: var(--muted); font-weight: 500; letter-spacing: 0.05em; }
+    .dimensions .value { font-weight: 700; font-size: 0.95rem; }
+    .rating { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; font-size: 0.85rem; font-weight: 700; }
+    .rating .star { color: #f59e0b; font-size: 1rem; line-height: 1; }
+    .icon-btn {
+      background: var(--card-inner); border: 0; padding: 0;
+      width: 3.5rem; height: 3.5rem; border-radius: 14px;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      color: var(--page-fg);
+    }
+    .icon-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .icon-btn svg { width: 24px; height: 24px; }
+    .product-body { padding: 1rem 0.5rem 0.35rem; }
+    .product-body .brand {
+      color: var(--muted); font-size: 0.8rem; letter-spacing: 0.1em;
+      text-transform: uppercase; margin: 0; font-weight: 600;
+    }
+    .product-body .row {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+      margin-top: 0.25rem;
+    }
+    .product-body h3 {
+      margin: 0; font-size: 1.65rem; font-weight: 800;
+      letter-spacing: -0.03em; color: var(--page-fg);
+    }
+    .product-body .price { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
+    .product-body .price-old {
+      color: var(--price-strike); text-decoration: line-through;
+      font-size: 0.9rem; margin-right: 0.25rem; font-weight: 500;
+    }
+
+    /* Example 3: testimonials */
+    .example-quotes .adaally-slider {
+      --adaally-color: var(--accent);
+      --adaally-bg: var(--page-bg);
+      --adaally-btn-border-width: 1px;
+    }
+    .quote {
+      padding: 3rem 2rem;
+      background: var(--card-bg);
+      border-radius: 22px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1rem; min-height: 220px;
+      text-align: center;
+    }
+    .quote blockquote {
+      font-size: clamp(1.15rem, 2vw, 1.5rem);
+      margin: 0 auto; max-width: 40ch; line-height: 1.4;
+      font-weight: 600; letter-spacing: -0.02em;
+      text-align: center; color: var(--page-fg);
+    }
+    .quote cite {
+      display: block; font-style: normal; font-size: 0.9rem;
+      color: var(--muted); text-align: center; margin: 0 auto;
+    }
+
+    /* ---------- Install & configure ---------- */
+    .install { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem 1rem; }
+
+    .install-methods {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1rem; margin-bottom: 2.5rem;
+    }
+    @media (max-width: 900px) { .install-methods { grid-template-columns: 1fr; } }
+    .install-card {
+      background: var(--card-bg); border-radius: 16px; padding: 1.5rem;
+      min-width: 0; /* let the grid track shrink below the <pre>'s intrinsic width */
+    }
+    .install-card h3 {
+      margin: 0 0 0.35rem; font-size: 1.05rem;
+      font-weight: 800; letter-spacing: -0.02em;
+    }
+    .install-card > p {
+      margin: 0 0 1rem; color: var(--muted); font-size: 0.88rem; line-height: 1.5;
+    }
+    .install-card pre {
+      background: #14131f; color: #e5e5f0;
+      border-radius: 10px; padding: 0.85rem 1rem;
+      overflow-x: auto; margin: 0 0 0.6rem;
+      font-size: 0.78rem; line-height: 1.55;
+    }
+    .install-card pre:last-child { margin-bottom: 0; }
+    .install-card code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .install-subhead {
+      font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em;
+      margin: 0 0 0.9rem;
+    }
+    .install-note {
+      color: var(--muted); font-size: 0.9rem; margin: -0.5rem 0 1.25rem;
+      max-width: 60ch;
+    }
+
+    .options-table-wrap {
+      overflow-x: auto;
+      background: var(--card-bg); border-radius: 16px;
+      margin-bottom: 2rem;
+    }
+    .options-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    .options-table th {
+      text-align: left; padding: 0.8rem 1.25rem;
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--muted); border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .options-table td {
+      padding: 0.8rem 1.25rem; border-bottom: 1px solid var(--border);
+      vertical-align: top; color: var(--page-fg); line-height: 1.5;
+    }
+    .options-table tr:last-child td { border-bottom: 0; }
+    .options-table code {
+      background: var(--page-bg); padding: 0.1rem 0.4rem;
+      border-radius: 4px; font-size: 0.8rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .options-table .opt-name code { color: var(--accent); font-weight: 700; }
+    .options-table .opt-type { color: var(--muted); white-space: nowrap; font-size: 0.8rem; }
+    .options-table .opt-default { white-space: nowrap; }
+
+    .install-more {
+      text-align: center; color: var(--muted); font-size: 0.92rem; margin: 0 0 1rem;
+    }
+    .install-more a { color: var(--accent); font-weight: 600; }
+
+    /* ---------- CTA ---------- */
+    .cta {
+      background: var(--accent); color: #fff;
+      border-radius: 22px; padding: 3rem 2rem; text-align: center;
+      max-width: 1120px; margin: 3rem auto; margin-inline: 1.5rem;
+    }
+    @media (min-width: 1152px) { .cta { margin-inline: auto; } }
+    .cta h2 { font-size: 2rem; margin: 0 0 0.5rem; letter-spacing: -0.02em; font-weight: 800; }
+    .cta p { margin: 0 0 1.25rem; opacity: 0.8; }
+    .cta code {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      padding: 0.6rem 1rem; border-radius: 12px; display: inline-block;
+      font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.9rem;
+    }
+
+    /* ---------- Footer ---------- */
+    .foot {
+      text-align: center; padding: 2rem 1.5rem 3rem;
+      color: var(--muted); font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="wordmark"><span>adaally</span> <span class="brand-mark">/ slider</span></div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#wcag">Accessibility</a>
+      <a href="#examples">Examples</a>
+      <a href="#install">Get started</a>
+    </div>
+  </nav>
+
+  <!-- ====================== LANDING HERO ====================== -->
+  <section class="landing">
+    <div class="landing-grid">
+      <div class="landing-text">
+        <span class="kicker">Built for WCAG 2.1 AA · zero deps</span>
+        <h1>Real accessibility, built into <em>every slide</em>.</h1>
+        <p>The accessible carousel for vanilla JS and Shopify, built to support WCAG 2.1 AA. Zero dependencies, ~4&nbsp;KB minified. Ships with the tablist pattern for dots, roving tabindex, live-region status updates and full <code>prefers-reduced-motion</code> support &mdash; out of the box.</p>
+        <div class="landing-ctas">
+          <a class="btn btn-primary" href="#examples">See examples &rarr;</a>
+          <a class="btn btn-outline" href="#install">Get started</a>
+        </div>
+        <div class="landing-stats">
+          <div><span class="num">~4KB</span><span class="lbl">minified UMD</span></div>
+          <div><span class="num">0</span><span class="lbl">dependencies</span></div>
+          <div><span class="num">10+</span><span class="lbl">WCAG SCs covered</span></div>
+        </div>
+      </div>
+
+      <div class="landing-visual">
+        <div data-adaally-slider='{"autoplay": true, "interval": 4000, "dotsShape": "line", "showArrows": false, "showDots": true, "label": "Live demo"}'>
+          <div class="mini-slide">
+            <img src="https://picsum.photos/id/1015/900/675" alt="">
+            <div class="mini-caption">Full-bleed hero &amp; product carousels</div>
+          </div>
+          <div class="mini-slide">
+            <img src="https://picsum.photos/id/1039/900/675" alt="">
+            <div class="mini-caption">Keyboard, screen-reader &amp; reduced-motion ready</div>
+          </div>
+          <div class="mini-slide">
+            <img src="https://picsum.photos/id/1043/900/675" alt="">
+            <div class="mini-caption">Brand it with CSS custom properties</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== FEATURES ====================== -->
+  <section id="features" class="features">
+    <div class="feature">
+      <p class="num">01</p>
+      <h3>Accessible by default</h3>
+      <p>WAI-ARIA APG carousel pattern. Dots use the tablist pattern with roving tabindex. Autoplay auto-pauses on hover, focus, and reduced motion.</p>
+    </div>
+    <div class="feature">
+      <p class="num">02</p>
+      <h3>Zero dependencies</h3>
+      <p>~4&nbsp;KB minified UMD, ~5&nbsp;KB ESM. Drop-in <code>&lt;script&gt;</code> for Shopify themes, or <code>import</code> into your bundler.</p>
+    </div>
+    <div class="feature">
+      <p class="num">03</p>
+      <h3>Fully brandable</h3>
+      <p>14 CSS custom properties, 7 modifier classes, custom SVG icon slots. The library styles the chrome &mdash; you style the content.</p>
+    </div>
+  </section>
+
+  <!-- ====================== WCAG EXPLAINER ====================== -->
+  <section id="wcag" class="wcag">
+    <div class="wcag-card">
+      <div class="wcag-copy">
+        <span class="kicker">WCAG 2.1 AA</span>
+        <h2>Accessibility is <em>semantics</em>, not a widget.</h2>
+        <p>Built on the <a href="https://www.w3.org/WAI/ARIA/apg/patterns/carousel/" target="_blank" rel="noopener">WAI-ARIA carousel pattern</a> and designed to support WCAG 2.1 AA — a standard widely referenced in accessibility laws and policies. Ten success criteria, no overlays. Conformance depends on your full page and content, so test your implementation.</p>
+      </div>
+      <div class="wcag-chips" aria-label="Success criteria covered">
+        <div class="wcag-chip"><span class="sc">1.3.1</span> Info &amp; Relationships</div>
+        <div class="wcag-chip"><span class="sc">1.4.11</span> Non-text Contrast</div>
+        <div class="wcag-chip"><span class="sc">2.1.1</span> Keyboard</div>
+        <div class="wcag-chip"><span class="sc">2.1.2</span> No Keyboard Trap</div>
+        <div class="wcag-chip"><span class="sc">2.2.2</span> Pause, Stop, Hide</div>
+        <div class="wcag-chip"><span class="sc">2.3.3</span> Reduced Motion</div>
+        <div class="wcag-chip"><span class="sc">2.4.3</span> Focus Order</div>
+        <div class="wcag-chip"><span class="sc">2.4.7</span> Focus Visible</div>
+        <div class="wcag-chip"><span class="sc">4.1.2</span> Name, Role, Value</div>
+        <div class="wcag-chip"><span class="sc">4.1.3</span> Status Messages</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== EXAMPLES (all together) ====================== -->
+  <section id="examples" class="examples">
+    <div class="section-head">
+      <h2>Examples</h2>
+      <p>Three real configurations you can copy into any project. All keyboard operable and built to support WCAG 2.1 AA.</p>
+    </div>
+
+    <!-- Example 1: image hero carousel -->
+    <div class="example-block example-image">
+      <div class="example-label">
+        <span class="tag">01</span>
+        <span class="title">Image hero &mdash; autoplay, reveal-on-hover, line dots</span>
+      </div>
+      <div class="frame dark">
+        <div data-adaally-slider='{"autoplay": true, "interval": 5500, "revealControls": true, "dotsShape": "line", "playButtonPosition": "top-right", "label": "Image hero example"}'>
+          <div class="hero-slide">
+            <img src="https://picsum.photos/id/1039/1600/900" alt="A waterfall cascading through a green valley.">
+            <div class="hero-caption">
+              <h3>Full-bleed image carousels</h3>
+              <p>Overlay copy, autoplay with pause, arrows and play button hidden until hover or focus.</p>
+            </div>
+          </div>
+          <div class="hero-slide">
+            <img src="https://picsum.photos/id/1015/1600/900" alt="A wide river flowing between forested banks.">
+            <div class="hero-caption">
+              <h3>Keyboard-first, screen-reader-tested</h3>
+              <p>Roving tabindex on dot tabs, arrow-key navigation, live-region announcements on slide change.</p>
+            </div>
+          </div>
+          <div class="hero-slide">
+            <img src="https://picsum.photos/id/1043/1600/900" alt="Sunlight filtering through a dense forest of tall pines.">
+            <div class="hero-caption">
+              <h3>Brand it with CSS variables</h3>
+              <p>14 custom properties on the root — swap your palette in without touching the library selectors.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example 2: product cards carousel -->
+    <div class="example-block example-products">
+      <div class="example-label">
+        <span class="tag">02</span>
+        <span class="title">Product cards &mdash; responsive 1 / 2 / 3 per view, page-by-page</span>
+      </div>
+      <div data-adaally-slider='{"slidesPerView": {"0": 1, "640": 2, "960": 3}, "slidesToScroll": 1, "loop": false, "revealControls": true, "dotsShape": "line", "dotsPosition": "below", "label": "Featured products"}'>
+        <article class="product-card">
+          <div class="product-image">
+            <div class="badges">
+              <span class="badge badge--dark">-50%</span>
+              <span class="badge badge--light">Oak</span>
+            </div>
+            <img src="https://picsum.photos/seed/prod-chair/900/900" alt="">
+          </div>
+          <div class="product-meta">
+            <div class="tile"><div class="dimensions"><div class="label">W</div><div class="label">H</div><div class="label">D</div><div class="value">58</div><div class="value">79</div><div class="value">60</div></div></div>
+            <div class="tile"><div class="rating"><span class="star">★</span><span>4.9</span></div></div>
+            <button class="icon-btn" aria-label="Add Merano Chair to favourites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+            <button class="icon-btn" aria-label="Add Merano Chair to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+          </div>
+          <div class="product-body">
+            <p class="brand">TON</p>
+            <div class="row"><h3>Merano Chair</h3><div class="price"><span class="price-old">$399</span>$199</div></div>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-image">
+            <div class="badges">
+              <span class="badge badge--dark">New</span>
+              <span class="badge badge--light">Walnut</span>
+            </div>
+            <img src="https://picsum.photos/seed/prod-lamp/900/900" alt="">
+          </div>
+          <div class="product-meta">
+            <div class="tile"><div class="dimensions"><div class="label">W</div><div class="label">H</div><div class="label">D</div><div class="value">32</div><div class="value">54</div><div class="value">32</div></div></div>
+            <div class="tile"><div class="rating"><span class="star">★</span><span>4.7</span></div></div>
+            <button class="icon-btn" aria-label="Add Kaskad Lamp to favourites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+            <button class="icon-btn" aria-label="Add Kaskad Lamp to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+          </div>
+          <div class="product-body">
+            <p class="brand">FOGIA</p>
+            <div class="row"><h3>Kaskad Lamp</h3><div class="price">$149</div></div>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-image">
+            <div class="badges"><span class="badge badge--light">Ash</span></div>
+            <img src="https://picsum.photos/seed/prod-table/900/900" alt="">
+          </div>
+          <div class="product-meta">
+            <div class="tile"><div class="dimensions"><div class="label">W</div><div class="label">H</div><div class="label">D</div><div class="value">140</div><div class="value">74</div><div class="value">80</div></div></div>
+            <div class="tile"><div class="rating"><span class="star">★</span><span>4.8</span></div></div>
+            <button class="icon-btn" aria-label="Add Vista Table to favourites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+            <button class="icon-btn" aria-label="Add Vista Table to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+          </div>
+          <div class="product-body">
+            <p class="brand">HAY</p>
+            <div class="row"><h3>Vista Table</h3><div class="price">$629</div></div>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-image">
+            <div class="badges"><span class="badge badge--dark">-30%</span><span class="badge badge--light">Linen</span></div>
+            <img src="https://picsum.photos/seed/prod-sofa/900/900" alt="">
+          </div>
+          <div class="product-meta">
+            <div class="tile"><div class="dimensions"><div class="label">W</div><div class="label">H</div><div class="label">D</div><div class="value">210</div><div class="value">86</div><div class="value">92</div></div></div>
+            <div class="tile"><div class="rating"><span class="star">★</span><span>4.9</span></div></div>
+            <button class="icon-btn" aria-label="Add Olo Sofa to favourites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+            <button class="icon-btn" aria-label="Add Olo Sofa to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+          </div>
+          <div class="product-body">
+            <p class="brand">MUUTO</p>
+            <div class="row"><h3>Olo Sofa</h3><div class="price"><span class="price-old">$1899</span>$1329</div></div>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-image">
+            <div class="badges"><span class="badge badge--light">Ceramic</span></div>
+            <img src="https://picsum.photos/seed/prod-vase/900/900" alt="">
+          </div>
+          <div class="product-meta">
+            <div class="tile"><div class="dimensions"><div class="label">W</div><div class="label">H</div><div class="label">D</div><div class="value">18</div><div class="value">28</div><div class="value">18</div></div></div>
+            <div class="tile"><div class="rating"><span class="star">★</span><span>4.6</span></div></div>
+            <button class="icon-btn" aria-label="Add Alba Vase to favourites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+            <button class="icon-btn" aria-label="Add Alba Vase to cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+          </div>
+          <div class="product-body">
+            <p class="brand">FERM LIVING</p>
+            <div class="row"><h3>Alba Vase</h3><div class="price">$79</div></div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- Example 3: testimonials fade -->
+    <div class="example-block example-quotes">
+      <div class="example-label">
+        <span class="tag">03</span>
+        <span class="title">Testimonials &mdash; fade transition, circular dots, autoplay + pause</span>
+      </div>
+      <div data-adaally-slider='{"transition": "fade", "autoplay": true, "interval": 5500, "dotsPosition": "below", "label": "Developer testimonials"}'>
+        <div class="quote">
+          <blockquote>"Dropped it into our Shopify hero. Passed the Lighthouse a11y audit the same day."</blockquote>
+          <cite>&mdash; Priya S., frontend lead</cite>
+        </div>
+        <div class="quote">
+          <blockquote>"Half the size of Swiper for the 20% we actually needed. Perfect trade."</blockquote>
+          <cite>&mdash; Marco V., senior developer</cite>
+        </div>
+        <div class="quote">
+          <blockquote>"CSS variables + BEM classes. I re-skinned it in an afternoon and it matches our design system."</blockquote>
+          <cite>&mdash; Elena K., design engineer</cite>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== INSTALL & CONFIGURE ====================== -->
+  <section id="install" class="install">
+    <div class="section-head">
+      <h2>Install &amp; configure</h2>
+      <p>Copy the snippet for your stack, then tune any option below. Every default is already WCAG-safe — you're only adjusting behavior, not accessibility.</p>
+    </div>
+
+    <div class="install-methods">
+      <div class="install-card">
+        <h3>Shopify theme</h3>
+        <p>No npm, no build step. In <code>layout/theme.liquid</code>:</p>
+        <pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.css"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.umd.js" defer&gt;&lt;/script&gt;</code></pre>
+        <p>Then in any section or snippet:</p>
+        <pre><code>&lt;div data-adaally-slider='{"autoplay": true}'
+     aria-label="{{ section.settings.title }}"&gt;
+  {% for block in section.blocks %}
+    &lt;img src="{{ block.settings.image | image_url: width: 1600 }}"&gt;
+  {% endfor %}
+&lt;/div&gt;</code></pre>
+      </div>
+
+      <div class="install-card">
+        <h3>npm / bundler</h3>
+        <p>React, Vue, Next.js, Vite — anything with a build step.</p>
+        <pre><code>npm install @ada-ally/slider</code></pre>
+        <pre><code>import AdaallySlider from '@ada-ally/slider';
+import '@ada-ally/slider/css';
+
+new AdaallySlider('#hero', {
+  autoplay: true,
+  dotsShape: 'line',
+});</code></pre>
+      </div>
+
+      <div class="install-card">
+        <h3>Plain HTML</h3>
+        <p>WordPress, static sites, prototypes — any page, no bundler.</p>
+        <pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.css"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.umd.js" defer&gt;&lt;/script&gt;
+
+&lt;div data-adaally-slider='{"autoplay": true}'&gt;
+  &lt;img src="1.jpg"&gt;
+  &lt;img src="2.jpg"&gt;
+  &lt;img src="3.jpg"&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+    </div>
+
+    <h3 class="install-subhead">All options</h3>
+    <p class="install-note">Pass any of these as the second argument to <code>new AdaallySlider(el, options)</code>, or as JSON in <code>data-adaally-slider='{...}'</code> for auto-init.</p>
+    <div class="options-table-wrap">
+      <table class="options-table">
+        <thead>
+          <tr><th>Option</th><th>Type</th><th>Default</th><th>What it does</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="opt-name"><code>autoplay</code></td><td class="opt-type">boolean</td><td class="opt-default"><code>false</code></td><td>Auto-advance slides. Forces a visible pause button.</td></tr>
+          <tr><td class="opt-name"><code>interval</code></td><td class="opt-type">number (ms)</td><td class="opt-default"><code>5000</code></td><td>Delay between auto-advances.</td></tr>
+          <tr><td class="opt-name"><code>loop</code></td><td class="opt-type">boolean</td><td class="opt-default"><code>true</code></td><td>Wrap around at the ends. If <code>false</code>, prev/next disable at the boundaries.</td></tr>
+          <tr><td class="opt-name"><code>keyboard</code></td><td class="opt-type">boolean</td><td class="opt-default"><code>true</code></td><td>Enable arrow-key / Home / End navigation on controls.</td></tr>
+          <tr><td class="opt-name"><code>pauseOnHover</code></td><td class="opt-type">boolean</td><td class="opt-default"><code>true</code></td><td>Pause autoplay while the pointer is over the slider.</td></tr>
+          <tr><td class="opt-name"><code>pauseOnFocus</code></td><td class="opt-type">boolean</td><td class="opt-default"><code>true</code></td><td>Pause autoplay while focus is inside the slider.</td></tr>
+          <tr><td class="opt-name"><code>showArrows</code></td><td class="opt-type">boolean</td><td class="opt-default"><code>true</code></td><td>Render prev/next buttons.</td></tr>
+          <tr><td class="opt-name"><code>showDots</code></td><td class="opt-type">boolean</td><td class="opt-default"><code>true</code></td><td>Render dot pagination.</td></tr>
+          <tr><td class="opt-name"><code>slidesPerView</code></td><td class="opt-type">number | breakpoint map</td><td class="opt-default"><code>1</code></td><td>Slides visible at once. Pass a map for responsive: <code>{0:1, 640:2, 960:3}</code> (keys are min-width in px).</td></tr>
+          <tr><td class="opt-name"><code>slidesToScroll</code></td><td class="opt-type">number</td><td class="opt-default"><code>1</code></td><td>Slides advanced per prev/next step.</td></tr>
+          <tr><td class="opt-name"><code>transition</code></td><td class="opt-type">'slide' | 'fade'</td><td class="opt-default"><code>'slide'</code></td><td>Translated flex track vs. stacked cross-fade.</td></tr>
+          <tr><td class="opt-name"><code>label</code></td><td class="opt-type">string</td><td class="opt-default">&mdash;</td><td>Sets <code>aria-label</code> on the root — the carousel's accessible name.</td></tr>
+          <tr><td class="opt-name"><code>icons</code></td><td class="opt-type">{ prev?, next?, play?, pause? }</td><td class="opt-default"><code>{}</code></td><td>Custom SVG/HTML strings, overriding the default icons one by one.</td></tr>
+          <tr><td class="opt-name"><code>revealControls</code></td><td class="opt-type">boolean</td><td class="opt-default"><code>false</code></td><td>Hide arrows and play/pause until hover or focus-within. Touch devices always show.</td></tr>
+          <tr><td class="opt-name"><code>playButtonPosition</code></td><td class="opt-type">6 positions</td><td class="opt-default"><code>'top-left'</code></td><td><code>top-left</code>, <code>top-center</code>, <code>top-right</code>, <code>bottom-left</code>, <code>bottom-center</code>, <code>bottom-right</code>.</td></tr>
+          <tr><td class="opt-name"><code>dotsShape</code></td><td class="opt-type">'dot' | 'line'</td><td class="opt-default"><code>'dot'</code></td><td>Circular dots or thin horizontal bars.</td></tr>
+          <tr><td class="opt-name"><code>dotsPosition</code></td><td class="opt-type">'overlay' | 'below'</td><td class="opt-default"><code>'overlay'</code></td><td>Float over the bottom of the slide, or sit in a block below the whole slider.</td></tr>
+          <tr><td class="opt-name"><code>labels</code></td><td class="opt-type">object</td><td class="opt-default">see README</td><td>Override every ARIA string for i18n, including the live-region announcement functions.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="install-subhead">Theming with CSS custom properties</h3>
+    <p class="install-note">Set any of these on the root <code>.adaally-slider</code> element — no selector overrides needed.</p>
+    <div class="options-table-wrap">
+      <table class="options-table">
+        <thead>
+          <tr><th>Variable</th><th>Default</th><th>Controls</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="opt-name"><code>--adaally-color</code></td><td class="opt-default"><code>#111827</code></td><td>Button / border / dot color</td></tr>
+          <tr><td class="opt-name"><code>--adaally-bg</code></td><td class="opt-default"><code>#ffffff</code></td><td>Button background</td></tr>
+          <tr><td class="opt-name"><code>--adaally-focus</code></td><td class="opt-default"><code>#2563eb</code></td><td>Focus-ring color</td></tr>
+          <tr><td class="opt-name"><code>--adaally-btn-size</code></td><td class="opt-default"><code>2.5rem</code></td><td>Arrow / play button size</td></tr>
+          <tr><td class="opt-name"><code>--adaally-btn-radius</code></td><td class="opt-default"><code>50%</code></td><td>Button border-radius</td></tr>
+          <tr><td class="opt-name"><code>--adaally-dot-size</code></td><td class="opt-default"><code>0.75rem</code></td><td>Dot diameter</td></tr>
+          <tr><td class="opt-name"><code>--adaally-dot-color-active</code></td><td class="opt-default"><code>currentColor</code></td><td>Active dot fill</td></tr>
+          <tr><td class="opt-name"><code>--adaally-dots-inset</code></td><td class="opt-default"><code>0.75rem</code></td><td>Distance from the edge when <code>dotsPosition: 'overlay'</code></td></tr>
+          <tr><td class="opt-name"><code>--adaally-gap</code></td><td class="opt-default"><code>1rem</code></td><td>Space between slides</td></tr>
+          <tr><td class="opt-name"><code>--adaally-transition</code></td><td class="opt-default"><code>300ms</code></td><td>Transform / fade / opacity duration</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="install-more">Full method &amp; event reference, every CSS variable, and the complete WCAG checklist are in the <a href="https://github.com/adaally/adaally-slider#readme" target="_blank" rel="noopener">README on GitHub</a>.</p>
+  </section>
+
+  <!-- ====================== CTA ====================== -->
+  <section class="cta">
+    <h2>Ship it in one line</h2>
+    <p>Two files, no build step. Works in a Shopify theme.liquid or any bundler.</p>
+    <code>&lt;script src="adaally-slider.umd.js"&gt;&lt;/script&gt;</code>
+  </section>
+
+  <footer class="foot">
+    Built with <a href="../README.md">Adaally Slider</a> · MIT-licensed · Built to support WCAG 2.1 AA
+  </footer>
+
+  <script src="../dist/adaally-slider.umd.js"></script>
+</body>
+</html>

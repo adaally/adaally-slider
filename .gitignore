@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+.cursor/
+*.swp
+*.swo
+*~
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test / coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Local scratch
+tmp/
+scratch/
+
+# ---
+# NOTE: `dist/` is intentionally NOT ignored so the library is usable
+# directly from GitHub (JSDelivr / raw) and by Shopify devs who paste
+# the built files into `assets/`. If you switch to a CI-built release
+# workflow, uncomment the line below.
+# dist/

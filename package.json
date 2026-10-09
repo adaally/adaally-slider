@@ -1,0 +1,63 @@
+{
+  "name": "@ada-ally/slider",
+  "version": "0.1.0",
+  "description": "Dependency-free slider/carousel built to support WCAG 2.1 AA, for vanilla JS and Shopify themes.",
+  "author": "ADA Ally LLC",
+  "license": "MIT",
+  "homepage": "https://github.com/adaally/adaally-slider#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adaally/adaally-slider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adaally/adaally-slider/issues"
+  },
+  "main": "dist/adaally-slider.umd.js",
+  "module": "dist/adaally-slider.esm.js",
+  "types": "dist/adaally-slider.d.ts",
+  "style": "dist/adaally-slider.css",
+  "unpkg": "dist/adaally-slider.umd.js",
+  "jsdelivr": "dist/adaally-slider.umd.js",
+  "exports": {
+    ".": {
+      "types": "./dist/adaally-slider.d.ts",
+      "import": "./dist/adaally-slider.esm.js",
+      "require": "./dist/adaally-slider.umd.js",
+      "default": "./dist/adaally-slider.umd.js"
+    },
+    "./css": "./dist/adaally-slider.css",
+    "./src": "./src/adaally-slider.ts"
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "demo": "python3 -m http.server 8000 --directory ."
+  },
+  "keywords": [
+    "slider",
+    "carousel",
+    "accessibility",
+    "a11y",
+    "wcag",
+    "aria",
+    "shopify",
+    "vanilla-js",
+    "typescript"
+  ],
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "sideEffects": [
+    "*.css",
+    "dist/adaally-slider.esm.js"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
