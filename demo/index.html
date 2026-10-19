@@ -718,8 +718,8 @@
       <div class="install-card">
         <h3>Shopify theme</h3>
         <p>No npm, no build step. In <code>layout/theme.liquid</code>:</p>
-        <pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.css"&gt;
-&lt;script src="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.umd.js" defer&gt;&lt;/script&gt;</code></pre>
+        <pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.css"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.umd.js" defer&gt;&lt;/script&gt;</code></pre>
         <p>Then in any section or snippet:</p>
         <pre><code>&lt;div data-adaally-slider='{"autoplay": true}'
      aria-label="{{ section.settings.title }}"&gt;
@@ -732,9 +732,9 @@
       <div class="install-card">
         <h3>npm / bundler</h3>
         <p>React, Vue, Next.js, Vite — anything with a build step.</p>
-        <pre><code>npm install @ada-ally/slider</code></pre>
-        <pre><code>import AdaallySlider from '@ada-ally/slider';
-import '@ada-ally/slider/css';
+        <pre><code>npm install @adaally/slider</code></pre>
+        <pre><code>import AdaallySlider from '@adaally/slider';
+import '@adaally/slider/css';
 
 new AdaallySlider('#hero', {
   autoplay: true,
@@ -745,8 +745,8 @@ new AdaallySlider('#hero', {
       <div class="install-card">
         <h3>Plain HTML</h3>
         <p>WordPress, static sites, prototypes — any page, no bundler.</p>
-        <pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.css"&gt;
-&lt;script src="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.umd.js" defer&gt;&lt;/script&gt;
+        <pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.css"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.umd.js" defer&gt;&lt;/script&gt;
 
 &lt;div data-adaally-slider='{"autoplay": true}'&gt;
   &lt;img src="1.jpg"&gt;

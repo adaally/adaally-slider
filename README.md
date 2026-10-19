@@ -13,8 +13,8 @@ Pick the snippet that matches how you build.
 In `layout/theme.liquid`:
 
 ```liquid
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.css">
-<script src="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.umd.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.css">
+<script src="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.umd.js" defer></script>
 ```
 
 In any section or snippet:
@@ -33,13 +33,13 @@ Auto-init picks it up on `DOMContentLoaded` — zero JavaScript to write.
 ### React / Vue / any bundler
 
 ```bash
-npm install @ada-ally/slider
+npm install @adaally/slider
 ```
 
 ```jsx
 import { useEffect, useRef } from 'react';
-import AdaallySlider from '@ada-ally/slider';
-import '@ada-ally/slider/css';
+import AdaallySlider from '@adaally/slider';
+import '@adaally/slider/css';
 
 export function Hero() {
   const ref = useRef(null);
@@ -60,8 +60,8 @@ export function Hero() {
 ### Plain HTML page (WordPress, static sites, prototypes)
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.css">
-<script src="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.umd.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.css">
+<script src="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.umd.js" defer></script>
 
 <div data-adaally-slider='{"autoplay": true}'>
   <img src="1.jpg" alt="…">
@@ -122,12 +122,12 @@ The `data-adaally-slider` attribute triggers auto-init on `DOMContentLoaded`.
 ### Option B — npm / bundler
 
 ```bash
-npm install @ada-ally/slider
+npm install @adaally/slider
 ```
 
 ```js
-import AdaallySlider from '@ada-ally/slider';
-import '@ada-ally/slider/css';
+import AdaallySlider from '@adaally/slider';
+import '@adaally/slider/css';
 
 new AdaallySlider('#my-slider', { autoplay: true, interval: 5000 });
 ```
@@ -138,11 +138,11 @@ Once published to npm, JSDelivr and unpkg mirror the package automatically.
 
 ```html
 <!-- JSDelivr (recommended, faster global cache) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.css">
-<script src="https://cdn.jsdelivr.net/npm/@ada-ally/slider@0.1/dist/adaally-slider.umd.js" defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.css">
+<script src="https://cdn.jsdelivr.net/npm/@adaally/slider@0.1/dist/adaally-slider.umd.js" defer></script>
 
 <!-- unpkg (identical package) -->
-<script src="https://unpkg.com/@ada-ally/slider@0.1/dist/adaally-slider.umd.js" defer></script>
+<script src="https://unpkg.com/@adaally/slider@0.1/dist/adaally-slider.umd.js" defer></script>
 ```
 
 **Always pin a version in production** (`@0.1`, `@0.1.2`) — omitting it serves whatever's latest, which can break your site the day we ship a major.

@@ -1,5 +1,5 @@
 {
-  "name": "@ada-ally/slider",
+  "name": "@adaally/slider",
   "version": "0.1.0",
   "description": "Dependency-free slider/carousel built to support WCAG 2.1 AA, for vanilla JS and Shopify themes.",
   "author": "ADA Ally LLC",
